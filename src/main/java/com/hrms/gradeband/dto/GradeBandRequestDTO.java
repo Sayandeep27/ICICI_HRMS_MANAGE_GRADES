@@ -1,0 +1,88 @@
+package com.hrms.gradeband.dto;
+
+import java.time.LocalDate;
+
+public class GradeBandRequestDTO {
+
+    private Long gradeId;
+    private String gradeBandName;
+    private String gradeBandCode;
+    private Integer minExperience;
+    private Integer maxExperience;
+    private String currency;
+    private Double minSalary;
+    private Double maxSalary;
+    private LocalDate effectiveStartDate;
+
+    public Long getGradeId() {
+        return gradeId;
+    }
+
+    public void setGradeId(Long gradeId) {
+        this.gradeId = gradeId;
+    }
+
+    public String getGradeBandName() {
+        return gradeBandName;
+    }
+
+    public void setGradeBandName(String gradeBandName) {
+        this.gradeBandName = gradeBandName;
+    }
+
+    public String getGradeBandCode() {
+        return gradeBandCode;
+    }
+
+    public void setGradeBandCode(String gradeBandCode) {
+        this.gradeBandCode = gradeBandCode;
+    }
+
+    public Integer getMinExperience() {
+        return minExperience;
+    }
+
+    public void setMinExperience(Integer minExperience) {
+        this.minExperience = minExperience;
+    }
+
+    public Integer getMaxExperience() {
+        return maxExperience;
+    }
+
+    public void setMaxExperience(Integer maxExperience) {
+        this.maxExperience = maxExperience;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public Double getMinSalary() {
+        return minSalary;
+    }
+
+    public void setMinSalary(Double minSalary) {
+        this.minSalary = minSalary;
+    }
+
+    public Double getMaxSalary() {
+        return maxSalary;
+    }
+
+    public void setMaxSalary(Double maxSalary) {
+        this.maxSalary = maxSalary;
+    }
+
+    public LocalDate getEffectiveStartDate() {
+        return effectiveStartDate;
+    }
+
+    public void setEffectiveStartDate(LocalDate effectiveStartDate) {
+        this.effectiveStartDate = effectiveStartDate;
+    }
+}
