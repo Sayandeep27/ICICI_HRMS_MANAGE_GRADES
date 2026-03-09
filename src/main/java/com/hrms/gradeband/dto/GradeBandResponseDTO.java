@@ -1,10 +1,5 @@
 package com.hrms.gradeband.dto;
 
-import java.time.LocalDate;
-
-import lombok.Data;
-
-@Data
 public class GradeBandResponseDTO {
 
     private Long id;
@@ -13,18 +8,58 @@ public class GradeBandResponseDTO {
 
     private String gradeBandCode;
 
-    private Integer minExperience;
-
-    private Integer maxExperience;
-
-    private String currency;
+    private String status;
 
     private Double minSalary;
 
     private Double maxSalary;
 
-    private LocalDate effectiveStartDate;
+    public Long getId() {
+        return id;
+    }
 
-    private String status;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getGradeBandName() {
+        return gradeBandName;
+    }
+
+    public void setGradeBandName(String gradeBandName) {
+        this.gradeBandName = gradeBandName;
+    }
+
+    public String getGradeBandCode() {
+        return gradeBandCode;
+    }
+
+    public void setGradeBandCode(String gradeBandCode) {
+        this.gradeBandCode = gradeBandCode;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Double getMinSalary() {
+        return minSalary;
+    }
+
+    public void setMinSalary(Double minSalary) {
+        this.minSalary = minSalary;
+    }
+
+    public Double getMaxSalary() {
+        return maxSalary;
+    }
+
+    public void setMaxSalary(Double maxSalary) {
+        this.maxSalary = maxSalary;
+    }
 
 }

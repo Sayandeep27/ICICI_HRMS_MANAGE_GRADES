@@ -1,6 +1,6 @@
 package com.hrms.gradeband.service;
 
-import com.hrms.gradeband.dto.GradeBandRequestDTO;
+import com.hrms.gradeband.dto.GradeBandDTO;
 import com.hrms.gradeband.dto.GradeBandSearchDTO;
 import com.hrms.gradeband.entity.ChangeHistory;
 import com.hrms.gradeband.entity.Grade;
@@ -12,7 +12,6 @@ import com.hrms.gradeband.repository.GradeBandRepository;
 import com.hrms.gradeband.repository.GradeRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,43 +26,41 @@ public class GradeBandServiceImpl implements GradeBandService {
             GradeBandRepository repo,
             ChangeHistoryRepository historyRepo,
             GradeRepository gradeRepo) {
-
         this.repo = repo;
         this.historyRepo = historyRepo;
         this.gradeRepo = gradeRepo;
     }
 
     @Override
-    public GradeBand create(GradeBandRequestDTO req) {
+    public GradeBand saveDraft(GradeBandDTO dto) {
 
-        if(repo.existsByGradeBandCode(req.getGradeBandCode()))
-            throw new RuntimeException("Duplicate GradeBand Code");
+        if(repo.findByGradeBandCode(dto.getGradeBandCode()).isPresent()){
+            throw new RuntimeException("Grade Band Code already exists");
+        }
 
-        Grade grade = gradeRepo.findById(req.getGradeId())
-                .orElseThrow(() -> new RuntimeException("Grade not found"));
-
-        GradeBand band = new GradeBand();
-
-        band.setGradeBandName(req.getGradeBandName());
-        band.setGradeBandCode(req.getGradeBandCode());
-        band.setMinExperience(req.getMinExperience());
-        band.setMaxExperience(req.getMaxExperience());
-        band.setCurrency(req.getCurrency());
-        band.setMinSalary(req.getMinSalary());
-        band.setMaxSalary(req.getMaxSalary());
-        band.setEffectiveStartDate(req.getEffectiveStartDate());
-
-        band.setStatus(Status.PENDING_APPROVAL);
-        band.setGrade(grade);
+        GradeBand band = map(dto);
+        band.setStatus(Status.DRAFT);
 
         repo.save(band);
 
-        ChangeHistory history = new ChangeHistory();
-        history.setGradeBandId(band.getId());
-        history.setAction(ActionType.CREATE);
-        history.setChangeDate(LocalDateTime.now());
+        saveHistory(band, ActionType.SAVE_DRAFT,null);
 
-        historyRepo.save(history);
+        return band;
+    }
+
+    @Override
+    public GradeBand submit(GradeBandDTO dto) {
+
+        if(repo.findByGradeBandCode(dto.getGradeBandCode()).isPresent()){
+            throw new RuntimeException("Grade Band Code already exists");
+        }
+
+        GradeBand band = map(dto);
+        band.setStatus(Status.PENDING_APPROVAL);
+
+        repo.save(band);
+
+        saveHistory(band, ActionType.CREATE,null);
 
         return band;
     }
@@ -71,120 +68,113 @@ public class GradeBandServiceImpl implements GradeBandService {
     @Override
     public GradeBand approve(Long id) {
 
-        GradeBand band = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+        GradeBand band = repo.findById(id).orElseThrow();
 
         band.setStatus(Status.ACTIVE);
+
         repo.save(band);
 
-        ChangeHistory history = new ChangeHistory();
-        history.setGradeBandId(id);
-        history.setAction(ActionType.APPROVE);
-        history.setChangeDate(LocalDateTime.now());
-
-        historyRepo.save(history);
+        saveHistory(band, ActionType.APPROVE,null);
 
         return band;
     }
 
     @Override
-    public GradeBand reject(Long id, String remarks) {
+    public GradeBand reject(Long id,String remarks){
 
-        GradeBand band = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+        GradeBand band = repo.findById(id).orElseThrow();
 
         band.setStatus(Status.REJECTED);
+
         repo.save(band);
 
-        ChangeHistory history = new ChangeHistory();
-        history.setGradeBandId(id);
-        history.setAction(ActionType.REJECT);
-        history.setRemarks(remarks);
-        history.setChangeDate(LocalDateTime.now());
-
-        historyRepo.save(history);
+        saveHistory(band,ActionType.REJECT,remarks);
 
         return band;
     }
 
     @Override
-    public GradeBand pushBack(Long id, String remarks) {
+    public GradeBand pushBack(Long id,String remarks){
 
-        GradeBand band = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+        GradeBand band = repo.findById(id).orElseThrow();
 
         band.setStatus(Status.PUSH_BACK);
+
         repo.save(band);
 
-        ChangeHistory history = new ChangeHistory();
-        history.setGradeBandId(id);
-        history.setAction(ActionType.PUSH_BACK);
-        history.setRemarks(remarks);
-        history.setChangeDate(LocalDateTime.now());
-
-        historyRepo.save(history);
+        saveHistory(band,ActionType.PUSH_BACK,remarks);
 
         return band;
     }
 
     @Override
-    public GradeBand modify(Long id, GradeBandRequestDTO dto) {
+    public GradeBand modify(Long id,GradeBandDTO dto){
 
-        GradeBand existing = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("GradeBand not found"));
+        GradeBand existing = repo.findById(id).orElseThrow();
 
-        existing.setEffectiveEndDate(LocalDate.now());
+        existing.setEffectiveEndDate(
+                dto.getEffectiveStartDate().minusDays(1)
+        );
+
         repo.save(existing);
 
-        GradeBand newBand = new GradeBand();
-
-        newBand.setGradeBandName(dto.getGradeBandName());
-        newBand.setGradeBandCode(dto.getGradeBandCode());
-        newBand.setMinExperience(dto.getMinExperience());
-        newBand.setMaxExperience(dto.getMaxExperience());
-        newBand.setCurrency(dto.getCurrency());
-        newBand.setMinSalary(dto.getMinSalary());
-        newBand.setMaxSalary(dto.getMaxSalary());
-        newBand.setEffectiveStartDate(dto.getEffectiveStartDate());
+        GradeBand newBand = map(dto);
 
         newBand.setStatus(Status.PENDING_APPROVAL);
 
-        Grade grade = gradeRepo.findById(dto.getGradeId()).orElseThrow();
-        newBand.setGrade(grade);
-
         repo.save(newBand);
 
-        ChangeHistory history = new ChangeHistory();
-        history.setGradeBandId(newBand.getId());
-        history.setAction(ActionType.MODIFY);
-        history.setChangeDate(LocalDateTime.now());
-
-        historyRepo.save(history);
+        saveHistory(newBand,ActionType.MODIFY,null);
 
         return newBand;
     }
 
     @Override
-    public List<GradeBand> search(GradeBandSearchDTO dto) {
+    public List<GradeBand> search(GradeBandSearchDTO dto){
 
-        Status status = null;
+        if(dto.getGradeId()!=null){
+            return repo.findByGradeId(dto.getGradeId());
+        }
 
-        if(dto.getStatus()!=null)
-            status = Status.valueOf(dto.getStatus());
-
-        return repo.search(
-                dto.getGradeId(),
-                dto.getGradeBandName(),
-                dto.getGradeBandCode(),
-                status
-        );
+        return repo.findAll();
     }
 
     @Override
-    public List<ChangeHistory> history(Long gradeBandId) {
-
-        return historyRepo.findByGradeBandIdOrderByChangeDateDesc(gradeBandId);
-
+    public List<ChangeHistory> history(Long id){
+        return historyRepo.findByGradeBandIdOrderByChangeDateDesc(id);
     }
 
+    private GradeBand map(GradeBandDTO dto){
+
+        GradeBand band = new GradeBand();
+
+        Grade grade = gradeRepo.findById(dto.getGradeId()).orElseThrow();
+
+        band.setGrade(grade);
+        band.setGradeBandName(dto.getGradeBandName());
+        band.setGradeBandCode(dto.getGradeBandCode());
+        band.setMinExperience(dto.getMinExperience());
+        band.setMaxExperience(dto.getMaxExperience());
+        band.setMinSalary(dto.getMinSalary());
+        band.setMaxSalary(dto.getMaxSalary());
+        band.setEffectiveStartDate(dto.getEffectiveStartDate());
+        band.setCurrencyId(dto.getCurrencyId());
+
+        return band;
+    }
+
+    private void saveHistory(GradeBand band,
+                             ActionType action,
+                             String remarks){
+
+        ChangeHistory history = new ChangeHistory();
+
+        history.setGradeBand(band);
+        history.setAction(action);
+        history.setChangeDate(LocalDateTime.now());
+        history.setChangedBy("SYSTEM");
+        history.setRemarks(remarks);
+
+        historyRepo.save(history);
+    }
 }

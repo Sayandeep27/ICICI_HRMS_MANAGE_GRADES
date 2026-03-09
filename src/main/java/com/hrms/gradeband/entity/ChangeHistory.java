@@ -13,27 +13,21 @@ public class ChangeHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long gradeBandId;
-
     @Enumerated(EnumType.STRING)
     private ActionType action;
 
-    private String changedBy;
-
     private LocalDateTime changeDate;
+
+    private String changedBy;
 
     private String remarks;
 
+    @ManyToOne
+    @JoinColumn(name = "grade_band_id")
+    private GradeBand gradeBand;
+
     public Long getId() {
         return id;
-    }
-
-    public Long getGradeBandId() {
-        return gradeBandId;
-    }
-
-    public void setGradeBandId(Long gradeBandId) {
-        this.gradeBandId = gradeBandId;
     }
 
     public ActionType getAction() {
@@ -44,14 +38,6 @@ public class ChangeHistory {
         this.action = action;
     }
 
-    public String getChangedBy() {
-        return changedBy;
-    }
-
-    public void setChangedBy(String changedBy) {
-        this.changedBy = changedBy;
-    }
-
     public LocalDateTime getChangeDate() {
         return changeDate;
     }
@@ -60,11 +46,27 @@ public class ChangeHistory {
         this.changeDate = changeDate;
     }
 
+    public String getChangedBy() {
+        return changedBy;
+    }
+
+    public void setChangedBy(String changedBy) {
+        this.changedBy = changedBy;
+    }
+
     public String getRemarks() {
         return remarks;
     }
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public GradeBand getGradeBand() {
+        return gradeBand;
+    }
+
+    public void setGradeBand(GradeBand gradeBand) {
+        this.gradeBand = gradeBand;
     }
 }

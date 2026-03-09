@@ -5,13 +5,21 @@ import java.time.LocalDate;
 public class GradeBandRequestDTO {
 
     private Long gradeId;
+
+    private Long currencyId;
+
     private String gradeBandName;
+
     private String gradeBandCode;
+
     private Integer minExperience;
+
     private Integer maxExperience;
-    private String currency;
+
     private Double minSalary;
+
     private Double maxSalary;
+
     private LocalDate effectiveStartDate;
 
     public Long getGradeId() {
@@ -20,6 +28,14 @@ public class GradeBandRequestDTO {
 
     public void setGradeId(Long gradeId) {
         this.gradeId = gradeId;
+    }
+
+    public Long getCurrencyId() {
+        return currencyId;
+    }
+
+    public void setCurrencyId(Long currencyId) {
+        this.currencyId = currencyId;
     }
 
     public String getGradeBandName() {
@@ -54,14 +70,6 @@ public class GradeBandRequestDTO {
         this.maxExperience = maxExperience;
     }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
     public Double getMinSalary() {
         return minSalary;
     }
@@ -85,4 +93,5 @@ public class GradeBandRequestDTO {
     public void setEffectiveStartDate(LocalDate effectiveStartDate) {
         this.effectiveStartDate = effectiveStartDate;
     }
+
 }

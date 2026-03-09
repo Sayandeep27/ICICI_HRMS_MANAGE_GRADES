@@ -6,41 +6,91 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "grade_band")
+@Table(
+        name = "grade_band",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "grade_band_code")
+        }
+)
 public class GradeBand {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /*
+    Linked Grade
+     */
+    @ManyToOne
+    @JoinColumn(name = "grade_id", nullable = false)
+    private Grade grade;
+
+    /*
+    Grade Band Name
+     */
+    @Column(name = "grade_band_name", nullable = false)
     private String gradeBandName;
 
-    @Column(unique = true)
+    /*
+    Grade Band Code (unique)
+     */
+    @Column(name = "grade_band_code", nullable = false, unique = true, length = 30)
     private String gradeBandCode;
 
+    /*
+    Experience
+     */
+    @Column(name = "min_experience")
     private Integer minExperience;
 
+    @Column(name = "max_experience")
     private Integer maxExperience;
 
-    private String currency;
-
+    /*
+    Salary
+     */
+    @Column(name = "min_salary")
     private Double minSalary;
 
+    @Column(name = "max_salary")
     private Double maxSalary;
 
+    /*
+    Currency (from currency master)
+     */
+    @Column(name = "currency_id")
+    private Long currencyId;
+
+    /*
+    Effective Dates
+     */
+    @Column(name = "effective_start_date")
     private LocalDate effectiveStartDate;
 
+    @Column(name = "effective_end_date")
     private LocalDate effectiveEndDate;
 
+    /*
+    Status for Maker-Checker
+     */
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private Status status;
 
-    @ManyToOne
-    @JoinColumn(name = "grade_id")
-    private Grade grade;
+    /*
+    GETTERS AND SETTERS
+     */
 
     public Long getId() {
         return id;
+    }
+
+    public Grade getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Grade grade) {
+        this.grade = grade;
     }
 
     public String getGradeBandName() {
@@ -75,14 +125,6 @@ public class GradeBand {
         this.maxExperience = maxExperience;
     }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
     public Double getMinSalary() {
         return minSalary;
     }
@@ -97,6 +139,14 @@ public class GradeBand {
 
     public void setMaxSalary(Double maxSalary) {
         this.maxSalary = maxSalary;
+    }
+
+    public Long getCurrencyId() {
+        return currencyId;
+    }
+
+    public void setCurrencyId(Long currencyId) {
+        this.currencyId = currencyId;
     }
 
     public LocalDate getEffectiveStartDate() {
@@ -121,13 +171,5 @@ public class GradeBand {
 
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    public Grade getGrade() {
-        return grade;
-    }
-
-    public void setGrade(Grade grade) {
-        this.grade = grade;
     }
 }

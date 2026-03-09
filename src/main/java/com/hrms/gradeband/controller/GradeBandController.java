@@ -1,6 +1,6 @@
 package com.hrms.gradeband.controller;
 
-import com.hrms.gradeband.dto.GradeBandRequestDTO;
+import com.hrms.gradeband.dto.GradeBandDTO;
 import com.hrms.gradeband.dto.GradeBandSearchDTO;
 import com.hrms.gradeband.entity.ChangeHistory;
 import com.hrms.gradeband.entity.GradeBand;
@@ -19,41 +19,46 @@ public class GradeBandController {
         this.service = service;
     }
 
-    @PostMapping
-    public GradeBand create(@RequestBody GradeBandRequestDTO req){
-        return service.create(req);
+    @PostMapping("/draft")
+    public GradeBand saveDraft(@RequestBody GradeBandDTO dto) {
+        return service.saveDraft(dto);
     }
 
-    @PostMapping("/search")
-    public List<GradeBand> search(@RequestBody GradeBandSearchDTO dto){
-        return service.search(dto);
-    }
-
-    @PutMapping("/{id}")
-    public GradeBand modify(@PathVariable Long id,
-                            @RequestBody GradeBandRequestDTO dto){
-        return service.modify(id,dto);
+    @PostMapping("/submit")
+    public GradeBand submit(@RequestBody GradeBandDTO dto) {
+        return service.submit(dto);
     }
 
     @PostMapping("/{id}/approve")
-    public GradeBand approve(@PathVariable Long id){
+    public GradeBand approve(@PathVariable Long id) {
         return service.approve(id);
     }
 
     @PostMapping("/{id}/reject")
     public GradeBand reject(@PathVariable Long id,
-                            @RequestParam String remarks){
-        return service.reject(id,remarks);
+                            @RequestParam String remarks) {
+        return service.reject(id, remarks);
     }
 
     @PostMapping("/{id}/pushback")
-    public GradeBand pushback(@PathVariable Long id,
-                              @RequestParam String remarks){
-        return service.pushBack(id,remarks);
+    public GradeBand pushBack(@PathVariable Long id,
+                              @RequestParam String remarks) {
+        return service.pushBack(id, remarks);
     }
 
-    @GetMapping("/{id}/history")
-    public List<ChangeHistory> history(@PathVariable Long id){
+    @PutMapping("/{id}")
+    public GradeBand modify(@PathVariable Long id,
+                            @RequestBody GradeBandDTO dto) {
+        return service.modify(id, dto);
+    }
+
+    @PostMapping("/search")
+    public List<GradeBand> search(@RequestBody GradeBandSearchDTO dto) {
+        return service.search(dto);
+    }
+
+    @GetMapping("/history/{id}")
+    public List<ChangeHistory> history(@PathVariable Long id) {
         return service.history(id);
     }
-}+
+}

@@ -1,4 +1,4 @@
-package com.hrms.gradeband.enums;
+package com.hrms.gradeband.entity;
 
 public enum ActionType {
 
@@ -8,4 +8,5 @@ public enum ActionType {
     REJECT,
     PUSH_BACK,
     SAVE_DRAFT
+
 }

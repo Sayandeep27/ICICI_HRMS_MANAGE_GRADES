@@ -1,4 +1,4 @@
-package com.hrms.gradeband.enums;
+package com.hrms.gradeband.entity;
 
 public enum Status {
 
@@ -7,4 +7,5 @@ public enum Status {
     ACTIVE,
     REJECTED,
     PUSH_BACK
+
 }
