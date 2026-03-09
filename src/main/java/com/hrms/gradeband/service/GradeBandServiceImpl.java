@@ -1,15 +1,10 @@
 package com.hrms.gradeband.service;
 
-import com.hrms.gradeband.dto.GradeBandDTO;
-import com.hrms.gradeband.dto.GradeBandSearchDTO;
-import com.hrms.gradeband.entity.ChangeHistory;
-import com.hrms.gradeband.entity.Grade;
-import com.hrms.gradeband.entity.GradeBand;
-import com.hrms.gradeband.enums.ActionType;
-import com.hrms.gradeband.enums.Status;
-import com.hrms.gradeband.repository.ChangeHistoryRepository;
-import com.hrms.gradeband.repository.GradeBandRepository;
-import com.hrms.gradeband.repository.GradeRepository;
+import com.hrms.gradeband.dto.*;
+import com.hrms.gradeband.entity.*;
+import com.hrms.gradeband.enums.*;
+import com.hrms.gradeband.repository.*;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,6 +29,8 @@ public class GradeBandServiceImpl implements GradeBandService {
     @Override
     public GradeBand saveDraft(GradeBandDTO dto) {
 
+        validate(dto);
+
         if(repo.findByGradeBandCode(dto.getGradeBandCode()).isPresent()){
             throw new RuntimeException("Grade Band Code already exists");
         }
@@ -50,6 +47,8 @@ public class GradeBandServiceImpl implements GradeBandService {
 
     @Override
     public GradeBand submit(GradeBandDTO dto) {
+
+        validate(dto);
 
         if(repo.findByGradeBandCode(dto.getGradeBandCode()).isPresent()){
             throw new RuntimeException("Grade Band Code already exists");
@@ -110,6 +109,8 @@ public class GradeBandServiceImpl implements GradeBandService {
     @Override
     public GradeBand modify(Long id,GradeBandDTO dto){
 
+        validate(dto);
+
         GradeBand existing = repo.findById(id).orElseThrow();
 
         existing.setEffectiveEndDate(
@@ -130,13 +131,46 @@ public class GradeBandServiceImpl implements GradeBandService {
     }
 
     @Override
-    public List<GradeBand> search(GradeBandSearchDTO dto){
+    public Page<GradeBand> advancedSearch(GradeBandSearchDTO dto) {
 
-        if(dto.getGradeId()!=null){
-            return repo.findByGradeId(dto.getGradeId());
+        Pageable pageable = PageRequest.of(dto.getPage(), dto.getSize());
+
+        List<GradeBand> result;
+
+        if(dto.getNameOperation()!=null){
+
+            switch(dto.getNameOperation()){
+
+                case CONTAINS ->
+                        result = repo.findByGradeBandNameContaining(dto.getGradeBandName());
+
+                case STARTS_WITH ->
+                        result = repo.findByGradeBandNameStartingWith(dto.getGradeBandName());
+
+                case EQUALS ->
+                        result = repo.findByGradeBandName(dto.getGradeBandName());
+
+                case NOT_EQUALS ->
+                        result = repo.findByGradeBandNameNot(dto.getGradeBandName());
+
+                default ->
+                        result = repo.findAll();
+            }
+
+        } else if(dto.getStatus()!=null){
+
+            result = repo.findByStatus(dto.getStatus());
+
+        } else if(dto.getGradeId()!=null){
+
+            result = repo.findByGradeId(dto.getGradeId());
+
+        } else {
+
+            result = repo.findAll();
         }
 
-        return repo.findAll();
+        return new PageImpl<>(result,pageable,result.size());
     }
 
     @Override
@@ -176,5 +210,23 @@ public class GradeBandServiceImpl implements GradeBandService {
         history.setRemarks(remarks);
 
         historyRepo.save(history);
+    }
+
+    private void validate(GradeBandDTO dto){
+
+        if(dto.getMinExperience() > 60)
+            throw new RuntimeException("Min experience cannot exceed 60");
+
+        if(dto.getMaxExperience() > 60)
+            throw new RuntimeException("Max experience cannot exceed 60");
+
+        if(dto.getMaxExperience() < dto.getMinExperience())
+            throw new RuntimeException("Max experience cannot be less than Min experience");
+
+        if(dto.getMinSalary() <= 0)
+            throw new RuntimeException("Min salary cannot be zero");
+
+        if(dto.getMaxSalary() < dto.getMinSalary())
+            throw new RuntimeException("Max salary cannot be less than Min salary");
     }
 }

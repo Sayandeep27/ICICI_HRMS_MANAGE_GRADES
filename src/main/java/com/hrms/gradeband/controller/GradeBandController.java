@@ -5,6 +5,7 @@ import com.hrms.gradeband.dto.GradeBandSearchDTO;
 import com.hrms.gradeband.entity.ChangeHistory;
 import com.hrms.gradeband.entity.GradeBand;
 import com.hrms.gradeband.service.GradeBandService;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class GradeBandController {
     }
 
     @PostMapping("/draft")
-    public GradeBand saveDraft(@RequestBody GradeBandDTO dto) {
+    public GradeBand draft(@RequestBody GradeBandDTO dto) {
         return service.saveDraft(dto);
     }
 
@@ -53,8 +54,8 @@ public class GradeBandController {
     }
 
     @PostMapping("/search")
-    public List<GradeBand> search(@RequestBody GradeBandSearchDTO dto) {
-        return service.search(dto);
+    public Page<GradeBand> search(@RequestBody GradeBandSearchDTO dto) {
+        return service.advancedSearch(dto);
     }
 
     @GetMapping("/history/{id}")

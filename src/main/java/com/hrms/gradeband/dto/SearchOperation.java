@@ -4,5 +4,7 @@ public enum SearchOperation {
 
     CONTAINS,
     STARTS_WITH,
-    EQUALS
+    EQUALS,
+    NOT_EQUALS,
+    DOES_NOT_CONTAIN
 }

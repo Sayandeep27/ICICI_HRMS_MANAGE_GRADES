@@ -4,6 +4,7 @@ import com.hrms.gradeband.dto.GradeBandDTO;
 import com.hrms.gradeband.dto.GradeBandSearchDTO;
 import com.hrms.gradeband.entity.ChangeHistory;
 import com.hrms.gradeband.entity.GradeBand;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -21,7 +22,8 @@ public interface GradeBandService {
 
     GradeBand modify(Long id, GradeBandDTO dto);
 
-    List<GradeBand> search(GradeBandSearchDTO dto);
+    Page<GradeBand> advancedSearch(GradeBandSearchDTO dto);
 
-    List<ChangeHistory> history(Long gradeBandId);
+    List<ChangeHistory> history(Long id);
+
 }
