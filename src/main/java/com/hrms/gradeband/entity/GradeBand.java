@@ -70,6 +70,15 @@ public class GradeBand {
     @Column(name = "effective_end_date")
     private LocalDate effectiveEndDate;
 
+
+    // ADD THIS FIELD INSIDE YOUR EXISTING ENTITY
+
+    @Column(name = "version")
+    private Integer version;
+
+    public Integer getVersion() { return version; }
+    public void setVersion(Integer version) { this.version = version; }
+
     /*
     Status for Maker-Checker
      */

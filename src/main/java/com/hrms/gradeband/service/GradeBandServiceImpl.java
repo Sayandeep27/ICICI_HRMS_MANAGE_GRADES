@@ -36,6 +36,8 @@ public class GradeBandServiceImpl implements GradeBandService {
         }
 
         GradeBand band = map(dto);
+
+        band.setVersion(1);   // ✅ VERSION ADDED
         band.setStatus(Status.DRAFT);
 
         repo.save(band);
@@ -55,6 +57,8 @@ public class GradeBandServiceImpl implements GradeBandService {
         }
 
         GradeBand band = map(dto);
+
+        band.setVersion(1);   // ✅ VERSION ADDED
         band.setStatus(Status.PENDING_APPROVAL);
 
         repo.save(band);
@@ -113,14 +117,17 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         GradeBand existing = repo.findById(id).orElseThrow();
 
+        // 🔥 CLOSE OLD VERSION
         existing.setEffectiveEndDate(
                 dto.getEffectiveStartDate().minusDays(1)
         );
 
         repo.save(existing);
 
+        // 🔥 CREATE NEW VERSION
         GradeBand newBand = map(dto);
 
+        newBand.setVersion(existing.getVersion() + 1);   // ✅ VERSION LOGIC
         newBand.setStatus(Status.PENDING_APPROVAL);
 
         repo.save(newBand);
