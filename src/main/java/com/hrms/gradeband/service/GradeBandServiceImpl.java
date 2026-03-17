@@ -31,18 +31,18 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         validate(dto);
 
-        if(repo.findByGradeBandCode(dto.getGradeBandCode()).isPresent()){
+        if (repo.findByGradeBandCode(dto.getGradeBandCode()).isPresent()) {
             throw new RuntimeException("Grade Band Code already exists");
         }
 
         GradeBand band = map(dto);
 
-        band.setVersion(1);   // ✅ VERSION ADDED
+        band.setVersion(1);   // ✅ ensure version always set
         band.setStatus(Status.DRAFT);
 
         repo.save(band);
 
-        saveHistory(band, ActionType.SAVE_DRAFT,null);
+        saveHistory(band, ActionType.SAVE_DRAFT, null);
 
         return band;
     }
@@ -52,18 +52,18 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         validate(dto);
 
-        if(repo.findByGradeBandCode(dto.getGradeBandCode()).isPresent()){
+        if (repo.findByGradeBandCode(dto.getGradeBandCode()).isPresent()) {
             throw new RuntimeException("Grade Band Code already exists");
         }
 
         GradeBand band = map(dto);
 
-        band.setVersion(1);   // ✅ VERSION ADDED
+        band.setVersion(1);   // ✅ ensure version always set
         band.setStatus(Status.PENDING_APPROVAL);
 
         repo.save(band);
 
-        saveHistory(band, ActionType.CREATE,null);
+        saveHistory(band, ActionType.CREATE, null);
 
         return band;
     }
@@ -77,13 +77,13 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         repo.save(band);
 
-        saveHistory(band, ActionType.APPROVE,null);
+        saveHistory(band, ActionType.APPROVE, null);
 
         return band;
     }
 
     @Override
-    public GradeBand reject(Long id,String remarks){
+    public GradeBand reject(Long id, String remarks) {
 
         GradeBand band = repo.findById(id).orElseThrow();
 
@@ -91,13 +91,13 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         repo.save(band);
 
-        saveHistory(band,ActionType.REJECT,remarks);
+        saveHistory(band, ActionType.REJECT, remarks);
 
         return band;
     }
 
     @Override
-    public GradeBand pushBack(Long id,String remarks){
+    public GradeBand pushBack(Long id, String remarks) {
 
         GradeBand band = repo.findById(id).orElseThrow();
 
@@ -105,13 +105,13 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         repo.save(band);
 
-        saveHistory(band,ActionType.PUSH_BACK,remarks);
+        saveHistory(band, ActionType.PUSH_BACK, remarks);
 
         return band;
     }
 
     @Override
-    public GradeBand modify(Long id,GradeBandDTO dto){
+    public GradeBand modify(Long id, GradeBandDTO dto) {
 
         validate(dto);
 
@@ -127,12 +127,18 @@ public class GradeBandServiceImpl implements GradeBandService {
         // 🔥 CREATE NEW VERSION
         GradeBand newBand = map(dto);
 
-        newBand.setVersion(existing.getVersion() + 1);   // ✅ VERSION LOGIC
+        // ✅ FIX: HANDLE NULL VERSION SAFELY
+        Integer currentVersion = existing.getVersion();
+        if (currentVersion == null) {
+            currentVersion = 1;
+        }
+
+        newBand.setVersion(currentVersion + 1);
         newBand.setStatus(Status.PENDING_APPROVAL);
 
         repo.save(newBand);
 
-        saveHistory(newBand,ActionType.MODIFY,null);
+        saveHistory(newBand, ActionType.MODIFY, null);
 
         return newBand;
     }
@@ -144,9 +150,9 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         List<GradeBand> result;
 
-        if(dto.getNameOperation()!=null){
+        if (dto.getNameOperation() != null) {
 
-            switch(dto.getNameOperation()){
+            switch (dto.getNameOperation()) {
 
                 case CONTAINS ->
                         result = repo.findByGradeBandNameContaining(dto.getGradeBandName());
@@ -164,11 +170,11 @@ public class GradeBandServiceImpl implements GradeBandService {
                         result = repo.findAll();
             }
 
-        } else if(dto.getStatus()!=null){
+        } else if (dto.getStatus() != null) {
 
             result = repo.findByStatus(dto.getStatus());
 
-        } else if(dto.getGradeId()!=null){
+        } else if (dto.getGradeId() != null) {
 
             result = repo.findByGradeId(dto.getGradeId());
 
@@ -177,15 +183,15 @@ public class GradeBandServiceImpl implements GradeBandService {
             result = repo.findAll();
         }
 
-        return new PageImpl<>(result,pageable,result.size());
+        return new PageImpl<>(result, pageable, result.size());
     }
 
     @Override
-    public List<ChangeHistory> history(Long id){
+    public List<ChangeHistory> history(Long id) {
         return historyRepo.findByGradeBandIdOrderByChangeDateDesc(id);
     }
 
-    private GradeBand map(GradeBandDTO dto){
+    private GradeBand map(GradeBandDTO dto) {
 
         GradeBand band = new GradeBand();
 
@@ -206,7 +212,7 @@ public class GradeBandServiceImpl implements GradeBandService {
 
     private void saveHistory(GradeBand band,
                              ActionType action,
-                             String remarks){
+                             String remarks) {
 
         ChangeHistory history = new ChangeHistory();
 
@@ -219,21 +225,21 @@ public class GradeBandServiceImpl implements GradeBandService {
         historyRepo.save(history);
     }
 
-    private void validate(GradeBandDTO dto){
+    private void validate(GradeBandDTO dto) {
 
-        if(dto.getMinExperience() > 60)
+        if (dto.getMinExperience() > 60)
             throw new RuntimeException("Min experience cannot exceed 60");
 
-        if(dto.getMaxExperience() > 60)
+        if (dto.getMaxExperience() > 60)
             throw new RuntimeException("Max experience cannot exceed 60");
 
-        if(dto.getMaxExperience() < dto.getMinExperience())
+        if (dto.getMaxExperience() < dto.getMinExperience())
             throw new RuntimeException("Max experience cannot be less than Min experience");
 
-        if(dto.getMinSalary() <= 0)
+        if (dto.getMinSalary() <= 0)
             throw new RuntimeException("Min salary cannot be zero");
 
-        if(dto.getMaxSalary() < dto.getMinSalary())
+        if (dto.getMaxSalary() < dto.getMinSalary())
             throw new RuntimeException("Max salary cannot be less than Min salary");
     }
 }
