@@ -37,7 +37,7 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         GradeBand band = map(dto);
 
-        band.setVersion(1);   // ✅ ensure version always set
+        band.setVersion(1);
         band.setStatus(Status.DRAFT);
 
         repo.save(band);
@@ -58,7 +58,7 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         GradeBand band = map(dto);
 
-        band.setVersion(1);   // ✅ ensure version always set
+        band.setVersion(1);
         band.setStatus(Status.PENDING_APPROVAL);
 
         repo.save(band);
@@ -115,19 +115,24 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         validate(dto);
 
-        GradeBand existing = repo.findById(id).orElseThrow();
+        // 🔥 STEP 1: GET CURRENT ACTIVE RECORD
+        GradeBand existing = repo
+                .findTopByGradeIdAndEffectiveEndDateIsNull(dto.getGradeId());
 
-        // 🔥 CLOSE OLD VERSION
+        if (existing == null) {
+            throw new RuntimeException("No active record found for this grade");
+        }
+
+        // 🔥 STEP 2: CLOSE CURRENT VERSION
         existing.setEffectiveEndDate(
                 dto.getEffectiveStartDate().minusDays(1)
         );
 
         repo.save(existing);
 
-        // 🔥 CREATE NEW VERSION
+        // 🔥 STEP 3: CREATE NEW VERSION
         GradeBand newBand = map(dto);
 
-        // ✅ FIX: HANDLE NULL VERSION SAFELY
         Integer currentVersion = existing.getVersion();
         if (currentVersion == null) {
             currentVersion = 1;
@@ -138,6 +143,7 @@ public class GradeBandServiceImpl implements GradeBandService {
 
         repo.save(newBand);
 
+        // 🔥 STEP 4: SAVE HISTORY
         saveHistory(newBand, ActionType.MODIFY, null);
 
         return newBand;
@@ -189,7 +195,7 @@ public class GradeBandServiceImpl implements GradeBandService {
     @Override
     public List<ChangeHistory> history(Long id) {
         return historyRepo.findByGradeBandIdOrderByChangeDateDesc(id);
-    }
+    }   
 
     private GradeBand map(GradeBandDTO dto) {
 

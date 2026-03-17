@@ -1,0 +1,257 @@
+1. Always run these 2 queries in db first to delete all previous data - 
+
+DELETE FROM change_history;
+DELETE FROM grade_band;
+
+
+2. Then - 
+
+🔥 BASE URL
+http://localhost:8080/api/v4/gradebands
+✅ 1. SAVE DRAFT
+📌 POST
+http://localhost:8080/api/v4/gradebands/draft
+📦 Body
+{
+  "gradeId": 1,
+  "currencyId": 1,
+  "gradeBandName": "Draft Band",
+  "gradeBandCode": "DRAFT-001",
+  "minExperience": 1,
+  "maxExperience": 2,
+  "minSalary": 200000,
+  "maxSalary": 300000,
+  "effectiveStartDate": "2026-01-01"
+}
+✅ Response
+{
+  "timestamp": "2026-03-17T15:40:00",
+  "status": 201,
+  "success": true,
+  "message": "Grade Band draft created successfully",
+  "data": {
+    "id": 101,
+    "grade": {
+      "id": 1,
+      "gradeName": "G5",
+      "active": true
+    },
+    "gradeBandName": "Draft Band",
+    "gradeBandCode": "DRAFT-001",
+    "minExperience": 1,
+    "maxExperience": 2,
+    "minSalary": 200000.0,
+    "maxSalary": 300000.0,
+    "currencyId": 1,
+    "effectiveStartDate": "2026-01-01",
+    "effectiveEndDate": null,
+    "version": 1,
+    "status": "DRAFT"
+  }
+}
+✅ 2. SUBMIT
+📌 POST
+http://localhost:8080/api/v4/gradebands/submit
+📦 Body
+{
+  "gradeId": 1,
+  "currencyId": 1,
+  "gradeBandName": "Band V1",
+  "gradeBandCode": "BAND-001",
+  "minExperience": 1,
+  "maxExperience": 3,
+  "minSalary": 300000,
+  "maxSalary": 500000,
+  "effectiveStartDate": "2026-01-01"
+}
+✅ Response
+{
+  "timestamp": "2026-03-17T15:27:24.7156181",
+  "status": 201,
+  "success": true,
+  "message": "Grade Band submitted successfully",
+  "data": {
+    "id": 10026,
+    "grade": {
+      "id": 1,
+      "gradeName": "G5",
+      "active": true
+    },
+    "gradeBandName": "Band V1",
+    "gradeBandCode": "BAND-001",
+    "minExperience": 1,
+    "maxExperience": 3,
+    "minSalary": 300000.0,
+    "maxSalary": 500000.0,
+    "currencyId": 1,
+    "effectiveStartDate": "2026-01-01",
+    "effectiveEndDate": null,
+    "version": 1,
+    "status": "PENDING_APPROVAL"
+  }
+}
+✅ 3. APPROVE
+📌 POST
+http://localhost:8080/api/v4/gradebands/10026/approve
+📦 Body
+
+❌ No body
+
+✅ Response
+{
+  "timestamp": "2026-03-17T15:27:53.9428176",
+  "status": 200,
+  "success": true,
+  "message": "Grade Band approved successfully",
+  "data": {
+    "id": 10026,
+    "grade": {
+      "id": 1,
+      "gradeName": "G5",
+      "active": true
+    },
+    "gradeBandName": "Band V1",
+    "gradeBandCode": "BAND-001",
+    "minExperience": 1,
+    "maxExperience": 3,
+    "minSalary": 300000.0,
+    "maxSalary": 500000.0,
+    "currencyId": 1,
+    "effectiveStartDate": "2026-01-01",
+    "effectiveEndDate": null,
+    "version": 1,
+    "status": "ACTIVE"
+  }
+}
+✅ 4. REJECT
+📌 POST
+http://localhost:8080/api/v4/gradebands/10026/reject?remarks=Invalid%20Data
+📦 Body
+
+❌ No body
+
+✅ Response
+{
+  "timestamp": "2026-03-17T15:45:00",
+  "status": 200,
+  "success": true,
+  "message": "Grade Band rejected successfully",
+  "data": {
+    "id": 10026,
+    "status": "REJECTED"
+  }
+}
+✅ 5. PUSHBACK
+📌 POST
+http://localhost:8080/api/v4/gradebands/10026/pushback?remarks=Fix%20salary%20range
+📦 Body
+
+❌ No body
+
+✅ Response
+{
+  "timestamp": "2026-03-17T15:46:00",
+  "status": 200,
+  "success": true,
+  "message": "Grade Band pushed back successfully",
+  "data": {
+    "id": 10026,
+    "status": "PUSH_BACK"
+  }
+}
+✅ 6. MODIFY (VERSION 2)
+📌 POST
+http://localhost:8080/api/v4/gradebands/10026/modify
+📦 Body
+{
+  "gradeId": 1,
+  "currencyId": 1,
+  "gradeBandName": "Band V2",
+  "gradeBandCode": "BAND-002",
+  "minExperience": 2,
+  "maxExperience": 5,
+  "minSalary": 400000,
+  "maxSalary": 800000,
+  "effectiveStartDate": "2026-03-01"
+}
+✅ Response
+{
+  "timestamp": "2026-03-17T15:28:38.7073357",
+  "status": 200,
+  "success": true,
+  "message": "Grade Band modified successfully",
+  "data": {
+    "id": 10027,
+    "grade": {
+      "id": 1,
+      "gradeName": "G5",
+      "active": true
+    },
+    "gradeBandName": "Band V2",
+    "gradeBandCode": "BAND-002",
+    "minExperience": 2,
+    "maxExperience": 5,
+    "minSalary": 400000.0,
+    "maxSalary": 800000.0,
+    "currencyId": 1,
+    "effectiveStartDate": "2026-03-01",
+    "effectiveEndDate": null,
+    "version": 2,
+    "status": "PENDING_APPROVAL"
+  }
+}
+✅ 7. SEARCH
+📌 POST
+http://localhost:8080/api/v4/gradebands/search
+📦 Body
+{
+  "status": "ACTIVE"
+}
+✅ Response
+{
+  "timestamp": "2026-03-17T16:00:00",
+  "status": 200,
+  "success": true,
+  "message": "Search completed successfully",
+  "data": {
+    "content": [
+      {
+        "id": 10027,
+        "gradeBandName": "Band V2",
+        "status": "ACTIVE"
+      }
+    ],
+    "totalElements": 1
+  }
+}
+✅ 8. HISTORY
+📌 POST
+http://localhost:8080/api/v4/gradebands/history?id=10026
+📦 Body
+
+❌ No body
+
+✅ Response
+{
+  "timestamp": "2026-03-17T15:01:15",
+  "status": 200,
+  "success": true,
+  "message": "History fetched successfully",
+  "data": [
+    {
+      "action": "CREATE",
+      "changeDate": "2026-03-17T15:27:24",
+      "changedBy": "SYSTEM"
+    },
+    {
+      "action": "APPROVE",
+      "changeDate": "2026-03-17T15:27:53",
+      "changedBy": "SYSTEM"
+    },
+    {
+      "action": "MODIFY",
+      "changeDate": "2026-03-17T15:28:38",
+      "changedBy": "SYSTEM"
+    }
+  ]
+}

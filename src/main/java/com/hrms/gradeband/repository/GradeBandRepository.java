@@ -9,8 +9,10 @@ import java.util.Optional;
 
 public interface GradeBandRepository extends JpaRepository<GradeBand, Long> {
 
+    // 🔹 Unique check
     Optional<GradeBand> findByGradeBandCode(String code);
 
+    // 🔹 Search filters
     List<GradeBand> findByGradeId(Long gradeId);
 
     List<GradeBand> findByGradeBandNameContaining(String name);
@@ -23,4 +25,6 @@ public interface GradeBandRepository extends JpaRepository<GradeBand, Long> {
 
     List<GradeBand> findByStatus(Status status);
 
+    // 🔥 IMPORTANT (NEW - FOR VERSIONING FIX)
+    GradeBand findTopByGradeIdAndEffectiveEndDateIsNull(Long gradeId);
 }
